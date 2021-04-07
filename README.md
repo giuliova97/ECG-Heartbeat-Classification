@@ -1,7 +1,7 @@
 # ECG Analysis
 L'elettrocardiogramma (ECG) può essere utilizzato in modo affidabile come misura per monitorare la funzionalità del sistema cardiovascolare. Di recente, c'è stata una grande attenzione verso un'accurata categorizzazione dei battiti cardiaci. Il rilevamento precoce e accurato dei tipi di aritmia è importante per rilevare le malattie cardiache e scegliere un trattamento adeguato per il paziente. Tra tutti i classificatori, le reti neurali convoluzionali (CNN) sono diventate molto popolari per la classificazione ECG. Questo progetto presenta un’indagine dettagliata di tecniche di pre-processing su dataset di ECG, tecniche di feature extraction e classificatori basati su CNN. In particolare, la novità introdotta rispetto ad altri metodi proposti in letteratura è quella di effettuare una classificazione di ECG su fonti video ed in real-time. Secondo i risultati, il metodo suggerito è in grado di fare previsioni con accuratezza media del 98,47%.
 
-I dettagli del lavoro effettuato può essere osservato nel file 'Paper_ECG_FINAL.pdf'.
+I dettagli del lavoro effettuato possono essere osservati nel file 'Paper_ECG_FINAL.pdf'.
 
 ##### Installare:
 [Python](https://www.python.org/downloads/)
