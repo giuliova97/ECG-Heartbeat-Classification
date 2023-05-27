@@ -1,13 +1,11 @@
 # ECG Analysis
-L'elettrocardiogramma (ECG) può essere utilizzato in modo affidabile come misura per monitorare la funzionalità del sistema cardiovascolare. Di recente, c'è stata una grande attenzione verso un'accurata categorizzazione dei battiti cardiaci. Il rilevamento precoce e accurato dei tipi di aritmia è importante per rilevare le malattie cardiache e scegliere un trattamento adeguato per il paziente. Tra tutti i classificatori, le reti neurali convoluzionali (CNN) sono diventate molto popolari per la classificazione ECG. Questo progetto presenta un’indagine dettagliata di tecniche di pre-processing su dataset di ECG, tecniche di feature extraction e classificatori basati su CNN. In particolare, la novità introdotta rispetto ad altri metodi proposti in letteratura è quella di effettuare una classificazione di ECG su fonti video ed in real-time. Secondo i risultati, il metodo suggerito è in grado di fare previsioni con accuratezza media del 98,47%.
+The electrocardiogram (ECG) can be reliably used as a measure to monitor the function of the cardiovascular system. Recently, there has been a great focus on accurate categorization of heartbeats. Early and accurate detection of arrhythmia types is important for detecting heart disease and choosing appropriate treatment for the patient. Among all classifiers, convolutional neural networks (CNNs) have become very popular for ECG classification. This project presents a detailed investigation of pre-processing techniques on ECG datasets, feature extraction techniques and CNN-based classifiers. In particular, the novelty introduced compared with other methods proposed in the literature is to perform ECG classification on video and real-time sources. According to the results, the suggested method is able to make predictions with average accuracy of 98.47%.
 
-I dettagli del lavoro effettuato possono essere osservati nel file 'Paper_ECG_FINAL.pdf'.
-
-##### Installare:
+##### To install:
 [Python](https://www.python.org/downloads/)
 
-##### Requisiti d'installazione preliminari:
-Installare i pacchetti tramite la console di Python.
+##### Preliminary installation requirements:
+Installing packages via the Python console
 ```bash
 pip install numpy
 pip install pandas
@@ -23,16 +21,16 @@ pip install h5py
 pip install cycler
 pip install Pillow
 ```
-Nota : la versione delle librerie è indicata nel file requirements.txt
+Note : the version of the libraries is indicated in the requirements.txt file
 
 ---
-##### Procedura d'esecuzione dell'addestramento del modello: 
-La prima fase consiste nell'effettuare il caricamento del dataset utilizzando la libreria Pandas : 
+##### Model training execution procedure: 
+The first step is to load the dataset using the Pandas library : 
 ```bash
 train_df = pd.read_csv('mitbih_train.csv', header=None)
 ```
 
-Come descritto nel paper, viene effettuato il re-sampling del dataset
+As described in the paper, re-sampling of the dataset is performed
 ```bash
                                     Undersampling
 df_0 = train_df[train_df[187] == 0].sample(n=20000, random_state=13)
@@ -47,11 +45,11 @@ df_3 = resample(train_df[train_df[187] == 3], n_samples=20000,replace=True,
 df_4 = resample(train_df[train_df[187] == 4], n_samples=20000,replace=True,
                                            random_state=13)
 ```
-Dataset finale : 
+Final Dataset : 
 ```bash
 train_df_new = pd.concat([df_0, df_1, df_2, df_3, df_4])
 ```
-Effettuiamo la feature selection attraverso l'utilizzo delle functional dependencies estratte sul dataset : 
+We perform feature selection through the use of the functional dependencies extracted on the dataset : 
 ```bash
 #from 1 to 10
 train_df_new = train_df_new.drop([1,4,5,6,8,9,10],axis=1)
@@ -86,80 +84,80 @@ train_df_new = train_df_new.drop([165,167,168,169,170,171,172,173,174],axis=1)
 #from 175 to 186
 train_df_new = train_df_new.drop([176,177,178,179,181,182,183,184,185,186],axis=1)
 ```
-Quindi riduciamo così il numero di feature del dataset da 187 a 55
+Thus we reduce the number of features in the dataset from 187 to 55
 
-Andiamo a suddividere il dataset in training e test set. In particolare, utilizziamo l'80% delle istanze per il training e il restante 20% per il testing
+We go on to divide the dataset into training and testing sets. Specifically, we use 80% of the instances for training and the remaining 20% for testing:
 ```bash
 X_train, X_test, y_train, y_test = train_test_split(X_train,y_train, test_size = 0.2, random_state = 42)
 ```
-Andiamo ad effettuare il training della Convolutional Neural Network, utilizzando l'architettura specificata nel paper
+Perform Convolutional Neural Network training, using the architecture specified in the paper:
 ```bash
 model, history = train_model(X_train, y_train, X_test, y_test)
 ```
-Costruiamo le learning curves: 
+Build learning curves: 
 ```bash
 evaluate_model(history, X_test, y_test, model)
 ```
-Infine lo script dà in output i risultati di accuracy e mostra la confusion matrix
+Finally, the script outputs the accuracy results and shows the confusion matrix
 
-Eseguire lo script tramite la console di Python.
+Run the script via the Python console:
 ```bash
 python train.py
 ```
-##### Procedura di feature extraction e classification su fonti video statiche: 
-Specifichiamo il path del video da etichettare:
+##### Feature extraction and classification procedure on static video sources: 
+We specify the path of the video to be labeled:
 ```bash
 video_path = 'VideoECG.mp4'
 ```
-Dato in input un video, lavoriamo sui singoli frame. In particolare, come descritto nel paper, effettuiamo la conversione dell'immagine originale dal modello RGB al modello HSB
+Given a video as input, we work on the individual frames. Specifically, as described in the paper, we perform the conversion of the original image from the RGB model to the HSB model:
 ```bash
 img = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV).astype("float32")
 ```
-Effettuiamo la desaturazione dell'immagine: 
+Perform desaturation of the image: 
 ```bash
 (h, s, v) = cv2.split(img)
 s = s * 0
 s = np.clip(s, 0, 255)
 img = cv2.merge([h, s, v])
 ```
-Estraiamo il vettore delle caratteristiche 
+Extract the feature vector:
 ```bash
 extrac = extract_feat(image,peaks[0] - 90, peaks[0] + 96)
 ```
-Utilizziamo il modello costruito precedentemente per effettuare la previsione della classe da associare al segnale estratto: 
+Use the previously constructed model to make the prediction of the class to be associated with the extracted signal: 
 ```bash
 prediction = loaded_model.predict(np.reshape(extrac, (1, 186, 1)))
 ```
-Etichettiamo il segnale con la classe e la probabilità con cui il segnale appartiene alla classe:
+Label the signal with the class and the probability with which the signal belongs to the class:
 ```bash
 cv2.putText(imgForText, prediction, (x_list[peaks[0]], 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, 0)
 cv2.putText(imgForText, 'prob: ' + prob,(x_list[peaks[0]], 120), cv2.FONT_HERSHEY_SIMPLEX, 0.4,0)
 ```
-Eseguire lo script tramite la console di Python.
+Run the script via the Python console:
 ```bash
 python VideoMaker.py
 ```
 ---
-##### Procedura di feature extraction e classification in real-time:
-Viene utilizzata la stessa procedura sopra descritta, ma con l'integrazione in real-time
-Eseguire lo script tramite la console di Python.
+##### Real-time feature extraction and classification procedure:
+The same procedure as described above is used, but with real-time integration
+Run the script via the Python console:
 ```bash
 python VideoClassification.py
 ```
-##### Procedura di esecuzione script tramite console di Python:
-Per eseguire i diversi script, è possibile utilizzare lo script main.py nel seguente modo:
+##### Script execution procedure via Python console:
+To run the different scripts, you can use the main.py script in the following way:
 
-Per etichettare un'immagine data in input:
+To label an image given as input:
 ```bash
 python main.py 0 <image_path>
 ```
 
-Per etichettare un segnale in real-time:
+To label a signal in real-time:
 ```bash
 python main.py 1
 ```
 
-Per etichettare un video dato in input:
+To label a video given as input:
 ```bash
 python main.py 2 <video_path>
 ```
